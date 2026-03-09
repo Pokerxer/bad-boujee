@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
@@ -28,7 +28,7 @@ interface Order {
   paymentMethod: string;
 }
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const searchParams = useSearchParams();
   const urlOrderId = searchParams.get("order");
   const paymentType = searchParams.get("payment");
@@ -42,7 +42,6 @@ export default function CheckoutSuccessPage() {
 
   const fetchOrder = async () => {
     try {
-      // Get order ID from URL or sessionStorage
       const orderId = urlOrderId || sessionStorage.getItem("lastOrderId");
       
       if (!orderId) {
@@ -69,16 +68,11 @@ export default function CheckoutSuccessPage() {
 
   const getStatusStep = (status: string) => {
     switch (status) {
-      case "pending":
-        return 0;
-      case "processing":
-        return 1;
-      case "shipped":
-        return 2;
-      case "delivered":
-        return 3;
-      default:
-        return 0;
+      case "pending": return 0;
+      case "processing": return 1;
+      case "shipped": return 2;
+      case "delivered": return 3;
+      default: return 0;
     }
   };
 
@@ -86,15 +80,12 @@ export default function CheckoutSuccessPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-background pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <svg className="animate-spin h-12 w-12 text-accent mx-auto" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          <p className="font-body text-accent-2 mt-4">Loading order details...</p>
-        </div>
-      </main>
+      <div className="flex items-center justify-center py-12">
+        <svg className="animate-spin h-12 w-12 text-accent mx-auto" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+      </div>
     );
   }
 
@@ -263,5 +254,27 @@ export default function CheckoutSuccessPage() {
         </motion.div>
       </div>
     </main>
+  );
+}
+
+function LoadingState() {
+  return (
+    <main className="min-h-screen bg-background pt-16 flex items-center justify-center">
+      <div className="text-center">
+        <svg className="animate-spin h-12 w-12 text-accent mx-auto" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        </svg>
+        <p className="font-body text-accent-2 mt-4">Loading order details...</p>
+      </div>
+    </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <CheckoutSuccessContent />
+    </Suspense>
   );
 }
