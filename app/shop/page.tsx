@@ -650,7 +650,7 @@ function ListProductCard({ product, index }: { product: Product; index: number }
       <Link href={`/shop/${product.slug}`} className="group block">
         <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 bg-surface/50 hover:bg-surface rounded-2xl transition-colors">
           <div 
-            className="relative w-full sm:w-40 h-48 sm:h-48 flex-shrink-0 bg-card overflow-hidden rounded-xl"
+            className="relative w-full sm:w-32 sm:h-48 flex-shrink-0 bg-card overflow-hidden rounded-xl"
             onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)}
             onMouseLeave={() => setShowSecondImage(false)}
           >
@@ -668,7 +668,7 @@ function ListProductCard({ product, index }: { product: Product; index: number }
                   alt={product.name}
                   fill
                   className="object-cover"
-                  sizes="160px"
+                  sizes="128px"
                 />
               </motion.div>
             </AnimatePresence>
