@@ -648,9 +648,9 @@ function ListProductCard({ product, index }: { product: Product; index: number }
       transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.2) }}
     >
       <Link href={`/shop/${product.slug}`} className="group block">
-        <div className="flex gap-6 p-4 bg-surface/50 hover:bg-surface rounded-2xl transition-colors">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-4 bg-surface/50 hover:bg-surface rounded-2xl transition-colors">
           <div 
-            className="relative w-40 h-48 flex-shrink-0 bg-card overflow-hidden rounded-xl"
+            className="relative w-full sm:w-40 h-48 sm:h-48 flex-shrink-0 bg-card overflow-hidden rounded-xl"
             onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)}
             onMouseLeave={() => setShowSecondImage(false)}
           >
@@ -718,7 +718,7 @@ function ListProductCard({ product, index }: { product: Product; index: number }
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
               {hasSizes && (
                 <div className="flex gap-1">
                   {product.sizes!.map((sizeData, i) => (
@@ -767,7 +767,7 @@ function ListProductCard({ product, index }: { product: Product; index: number }
               <button
                 onClick={handleAddToCart}
                 disabled={!isSizeAvailable && hasSizes}
-                className={`ml-auto font-body text-xs uppercase tracking-wider px-6 py-3 transition-colors flex items-center gap-2 rounded-xl ${
+                className={`ml-auto font-body text-xs uppercase tracking-wider px-4 sm:px-6 py-3 transition-colors flex items-center gap-2 rounded-xl ${
                   isSizeAvailable || !hasSizes
                     ? "bg-accent text-background hover:bg-accent/90"
                     : "bg-card text-accent-2 cursor-not-allowed"
