@@ -23,12 +23,275 @@ interface Product {
   description?: string;
 }
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useInView } from "framer-motion";
-import { useAppDispatch } from "../../hooks/useStore";
-import { openQuickView } from "../../store/slices/uiSlice";
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number;
+  image: string;
+  images?: string[];
+  badge?: "new" | "limited" | "sold-out";
+  sizes?: { size: string; stock: number }[];
+  colors?: { name: string; hex: string }[];
+  description?: string;
+}
+
+function ProductCard({ product, index }: { product: Product; index: number }) {
+  const hasMultipleImages = product.images && product.images.length > 0;
+  const hasMultipleColors = product.colors && product.colors.length > 0;
+
+  const discount = product.compareAtPrice && Number(product.compareAtPrice) > 0
+    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
+    : 0;
+
+  return (
+    <div className="group block">
+      <Link href={`/shop/${product.slug}`} className="group block">
+        <div className="relative aspect-[3/4] bg-surface overflow-hidden rounded-2xl border border-accent-2/10 group-hover:border-accent/20 transition-all duration-300">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+
+          {product.badge && (
+            <span className={`absolute top-3 left-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 font-bold ${
+              product.badge === "new" ? "bg-accent text-background" :
+              product.badge === "limited" ? "bg-primary text-background" :
+              "bg-danger text-primary"
+            }`}>
+              {product.badge}
+            </span>
+          )}
+
+          {discount > 0 && (
+            <span className="absolute top-3 right-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 bg-danger text-primary font-bold w-fit">
+              -{discount}%
+            </span>
+          )}
+        </div>
+
+        <div className="p-4 text-center">
+          <h3 className="font-body text-lg font-medium text-primary leading-tight group-hover:text-accent transition-colors">
+            {product.name}
+          </h3>
+
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <span className="font-body text-base font-bold text-primary">
+              ₦{product.price.toLocaleString()}
+            </span>
+            {product.compareAtPrice && Number(product.compareAtPrice) > 0 && (
+              <span className="font-body text-sm text-accent-2 line-through">
+                ₦{product.compareAtPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {hasMultipleColors && (
+            <div className="flex justify-center gap-1 mt-3">
+              {product.colors!.slice(0, 4).map((color, i) => (
+                <span
+                  key={color.name}
+                  className={`w-4 h-4 rounded-full border ${
+                    i === 0 ? "ring-1 ring-accent" : "ring-transparent"
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          )}
+
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mt-3">
+              <span className="text-xs text-accent-2">
+                {product.sizes.reduce((total, size) => total + size.stock, 0)} in stock
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number;
+  image: string;
+  images?: string[];
+  badge?: "new" | "limited" | "sold-out";
+  sizes?: { size: string; stock: number }[];
+  colors?: { name: string; hex: string }[];
+  description?: string;
+}
+
+function ProductCard({ product, index }: { product: Product; index: number }) {
+  const hasMultipleImages = product.images && product.images.length > 0;
+  const hasMultipleColors = product.colors && product.colors.length > 0;
+
+  const discount = product.compareAtPrice && Number(product.compareAtPrice) > 0
+    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
+    : 0;
+
+  return (
+    <div className="group block">
+      <Link href={`/shop/${product.slug}`} className="group block">
+        <div className="relative aspect-[3/4] bg-surface overflow-hidden rounded-2xl border border-accent-2/10 group-hover:border-accent/20 transition-all duration-300">
+          <Image
+            src={product.image}
+            alt={product.name}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+
+          {product.badge && (
+            <span className={`absolute top-3 left-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 font-bold ${
+              product.badge === "new" ? "bg-accent text-background" :
+              product.badge === "limited" ? "bg-primary text-background" :
+              "bg-danger text-primary"
+            }`}>
+              {product.badge}
+            </span>
+          )}
+
+          {discount > 0 && (
+            <span className="absolute top-3 right-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 bg-danger text-primary font-bold w-fit">
+              -{discount}%
+            </span>
+          )}
+        </div>
+
+        <div className="p-4 text-center">
+          <h3 className="font-body text-lg font-medium text-primary leading-tight group-hover:text-accent transition-colors">
+            {product.name}
+          </h3>
+
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <span className="font-body text-base font-bold text-primary">
+              ₦{product.price.toLocaleString()}
+            </span>
+            {product.compareAtPrice && Number(product.compareAtPrice) > 0 && (
+              <span className="font-body text-sm text-accent-2 line-through">
+                ₦{product.compareAtPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {hasMultipleColors && (
+            <div className="flex justify-center gap-1 mt-3">
+              {product.colors!.slice(0, 4).map((color, i) => (
+                <span
+                  key={color.name}
+                  className={`w-4 h-4 rounded-full border ${
+                    i === 0 ? "ring-1 ring-accent" : "ring-transparent"
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          )}
+
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mt-3">
+              <span className="text-xs text-accent-2">
+                {product.sizes.reduce((total, size) => total + size.stock, 0)} in stock
+              </span>
+            </div>
+          )}
+        </div>
+      </Link>
+    </div>
+  );
+}
+
+export default function FeaturedProducts() {
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const res = await fetch('/api/products?featured=true&limit=3');
+        const data = await res.json();
+        if (data.success) {
+          setFeaturedProducts(data.products.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
+  if (loading && featuredProducts.length === 0) {
+    return (
+      <section className="py-24 px-4 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="font-display text-5xl md:text-6xl lg:text-7xl text-primary text-center mb-12">
+            FEATURED
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="w-full aspect-[3/4] bg-surface/20 rounded-2xl animate-pulse" />
+                <div className="w-3/4 h-4 mt-4 bg-surface/20 rounded animate-pulse" />
+                <div className="w-1/4 h-4 mt-2 bg-surface/20 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (featuredProducts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-24 px-4 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="font-display text-5xl md:text-6xl lg:text-7xl text-primary text-center mb-12">
+          FEATURED
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {featuredProducts.map((product, index) => (
+            <ProductCard key={product._id} product={product} index={index} />
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent/10 text-accent hover:bg-accent/20 transition-colors font-body uppercase tracking-wider"
+          >
+            View All Products
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 interface Product {
   _id: string;
