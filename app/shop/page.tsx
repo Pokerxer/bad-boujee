@@ -427,8 +427,8 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     }
   };
 
-  const discount = product.compareAtPrice && product.compareAtPrice > 0
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  const discount = product.compareAtPrice && Number(product.compareAtPrice) > 0
+    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
     : 0;
 
   return (
@@ -636,8 +636,8 @@ function ListProductCard({ product, index }: { product: Product; index: number }
     }
   };
 
-  const discount = product.compareAtPrice && product.compareAtPrice > 0
-    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+  const discount = product.compareAtPrice && Number(product.compareAtPrice) > 0
+    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
     : 0;
 
   return (
