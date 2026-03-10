@@ -427,7 +427,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     }
   };
 
-  const discount = product.compareAtPrice
+  const discount = product.compareAtPrice && product.compareAtPrice > 0
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
@@ -575,9 +575,223 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <span className="font-body text-base font-bold text-primary">₦{product.price.toLocaleString()}</span>
-            {product.compareAtPrice && (
+            {product.compareAtPrice && product.compareAtPrice > 0 && (
               <span className="font-body text-sm text-accent-2 line-through">₦{product.compareAtPrice.toLocaleString()}</span>
             )}
+          </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+function ListProductCard({ product, index }: { product: Product; index: number }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const dispatch = useAppDispatch();
+  const wishlistItems = useAppSelector((state) => state.wishlist.items);
+
+  const [selectedSize, setSelectedSize] = useState<number>(0);
+  const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
+  const [showSecondImage, setShowSecondImage] = useState(false);
+
+  const isWishlisted = wishlistItems.some((item) => item.id === product._id);
+  const hasMultipleImages = product.images && product.images.length > 1;
+  const hasSizes = product.sizes && product.sizes.length > 0;
+  const selectedSizeData = hasSizes ? product.sizes?.[selectedSize] : null;
+  const isSizeAvailable = selectedSizeData ? selectedSizeData.stock > 0 : true;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!isSizeAvailable && hasSizes) return;
+
+    const size = product.sizes?.[selectedSize]?.size || "M";
+    dispatch(addToCart({
+      id: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: product.image,
+      size,
+      quantity,
+    }));
+    dispatch(openCartDrawer());
+    setIsAdded(true);
+    setQuantity(1);
+    setTimeout(() => setIsAdded(false), 2000);
+  };
+
+  const handleWishlist = () => {
+    if (isWishlisted) {
+      dispatch(removeFromWishlist({ id: product._id }));
+    } else {
+      dispatch(addToWishlist({
+        id: product._id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        image: product.image,
+      }));
+    }
+  };
+
+  const discount = product.compareAtPrice && product.compareAtPrice > 0
+    ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
+    : 0;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, x: -20 }}
+      animate={isInView ? { opacity: 1, x: 0 } : {}}
+      transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.2) }}
+    >
+      <Link href={`/shop/${product.slug}`} className="group block">
+        <div className="flex gap-6 p-4 bg-surface/50 hover:bg-surface rounded-2xl transition-colors">
+          <div 
+            className="relative w-40 h-48 flex-shrink-0 bg-card overflow-hidden rounded-xl"
+            onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)}
+            onMouseLeave={() => setShowSecondImage(false)}
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={showSecondImage ? "second" : "first"}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={hasMultipleImages && showSecondImage ? product.images![1] : product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                  sizes="160px"
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {product.badge && (
+              <span className={`absolute top-2 left-2 font-body text-[9px] uppercase tracking-wider px-2 py-1 font-bold ${
+                product.badge === "new" ? "bg-accent text-background" :
+                product.badge === "limited" ? "bg-primary text-background" :
+                "bg-danger text-primary"
+              }`}>
+                {product.badge}
+              </span>
+            )}
+          </div>
+
+          <div className="flex-1 flex flex-col justify-between py-2">
+            <div>
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="font-body text-lg font-semibold text-primary group-hover:text-accent transition-colors">
+                    {product.name}
+                  </h3>
+                  <p className="font-body text-sm text-accent-2 mt-1 line-clamp-2">
+                    {product.description}
+                  </p>
+                </div>
+                <button
+                  onClick={(e) => { e.preventDefault(); handleWishlist(); }}
+                  className={`flex-shrink-0 w-10 h-10 rounded-full border border-accent-2/20 flex items-center justify-center transition-colors ${
+                    isWishlisted ? "text-danger border-danger" : "text-accent-2 hover:text-danger hover:border-danger"
+                  }`}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill={isWishlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 mt-3">
+                <span className="font-body text-xl font-bold text-primary">₦{product.price.toLocaleString()}</span>
+                {product.compareAtPrice && product.compareAtPrice > 0 && (
+                  <span className="font-body text-sm text-accent-2 line-through">₦{product.compareAtPrice.toLocaleString()}</span>
+                )}
+                {discount > 0 && (
+                  <span className="font-body text-xs text-danger">-{discount}% OFF</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              {hasSizes && (
+                <div className="flex gap-1">
+                  {product.sizes!.map((sizeData, i) => (
+                    <button
+                      key={sizeData.size}
+                      onClick={(e) => { e.preventDefault(); setSelectedSize(i); }}
+                      disabled={sizeData.stock === 0}
+                      className={`w-10 h-10 text-xs font-medium transition-all ${
+                        selectedSize === i
+                          ? "bg-accent text-background"
+                          : sizeData.stock === 0
+                          ? "bg-card text-accent-2/30 cursor-not-allowed line-through"
+                          : "bg-card text-primary hover:bg-accent hover:text-background"
+                      }`}
+                    >
+                      {sizeData.size}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-2">
+                <span className="font-body text-xs text-accent-2">Qty:</span>
+                <div className="flex items-center border border-accent-2/20 rounded-lg">
+                  <button
+                    onClick={(e) => { e.preventDefault(); setQuantity(Math.max(1, quantity - 1)); }}
+                    className="w-8 h-8 flex items-center justify-center text-primary hover:text-accent transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                  <span className="w-8 text-center font-body text-sm text-primary">{quantity}</span>
+                  <button
+                    onClick={(e) => { e.preventDefault(); setQuantity(Math.min(10, quantity + 1)); }}
+                    className="w-8 h-8 flex items-center justify-center text-primary hover:text-accent transition-colors"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                onClick={handleAddToCart}
+                disabled={!isSizeAvailable && hasSizes}
+                className={`ml-auto font-body text-xs uppercase tracking-wider px-6 py-3 transition-colors flex items-center gap-2 rounded-xl ${
+                  isSizeAvailable || !hasSizes
+                    ? "bg-accent text-background hover:bg-accent/90"
+                    : "bg-card text-accent-2 cursor-not-allowed"
+                }`}
+              >
+                {isAdded ? (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                    Added
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                      <line x1="3" y1="6" x2="21" y2="6" />
+                      <path d="M16 10a4 4 0 0 1-8 0" />
+                    </svg>
+                    {hasSizes && selectedSizeData?.stock === 0 ? "Sold Out" : "Add"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </Link>
@@ -844,7 +1058,7 @@ export default function ShopPage() {
                   Clear All Filters
                 </button>
               </motion.div>
-            ) : (
+            ) : viewMode === "grid" ? (
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -852,6 +1066,16 @@ export default function ShopPage() {
               >
                 {products.map((product, index) => (
                   <ProductCard key={product._id} product={product} index={index} />
+                ))}
+              </motion.div>
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="space-y-4"
+              >
+                {products.map((product, index) => (
+                  <ListProductCard key={product._id} product={product} index={index} />
                 ))}
               </motion.div>
             )}
