@@ -298,7 +298,7 @@ export default function ProductDetailPage({ params }: Props) {
                 <span className="font-body text-3xl font-bold text-primary">
                   ₦{product.price.toLocaleString()}
                 </span>
-                {product.compareAtPrice && (
+                {product.compareAtPrice && product.compareAtPrice > 0 && (
                   <>
                     <span className="font-body text-xl text-accent-2 line-through">
                       ₦{product.compareAtPrice.toLocaleString()}
