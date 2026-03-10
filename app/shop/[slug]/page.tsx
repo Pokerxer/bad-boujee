@@ -9,152 +9,19 @@ import { addToCart, openCartDrawer } from "../../store/slices/cartSlice";
 import { addToWishlist, removeFromWishlist } from "../../store/slices/wishlistSlice";
 
 interface Product {
-  id: string;
+  _id: string;
   name: string;
   slug: string;
   price: number;
   compareAtPrice?: number;
+  description?: string;
   image: string;
   images?: string[];
   badge?: "new" | "limited" | "sold-out";
   sizes?: { size: string; stock: number }[];
   colors?: { name: string; hex: string }[];
   category: string;
-  description?: string;
 }
-
-const allProducts: Product[] = [
-  {
-    id: "1",
-    name: "Infinity Classic Tank",
-    slug: "infinity-classic-tank",
-    price: 45,
-    compareAtPrice: 55,
-    image: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80",
-      "https://images.unsplash.com/photo-1503341455253-b2e72333dbdb?w=600&q=80",
-    ],
-    badge: "new",
-    sizes: [
-      { size: "S", stock: 12 },
-      { size: "M", stock: 8 },
-      { size: "L", stock: 5 },
-      { size: "XL", stock: 0 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Gold", hex: "#C9A84C" },
-      { name: "White", hex: "#FFFFFF" },
-    ],
-    category: "tank",
-    description: "Premium cotton blend with infinity branding. Features a relaxed fit, deep armholes, and our signature infinity logo embroidered on the chest. Perfect for court sessions or street style.",
-  },
-  {
-    id: "2",
-    name: "Courtside Tee",
-    slug: "courtside-tee",
-    price: 55,
-    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80",
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
-    ],
-    sizes: [
-      { size: "S", stock: 15 },
-      { size: "M", stock: 20 },
-      { size: "L", stock: 10 },
-      { size: "XL", stock: 7 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "White", hex: "#FFFFFF" },
-    ],
-    category: "tee",
-    description: "Oversized fit with retro court graphics. Made from 100% premium cotton for maximum comfort and durability.",
-  },
-  {
-    id: "3",
-    name: "Boujee Hoops Hoodie",
-    slug: "boujee-hoops-hoodie",
-    price: 85,
-    compareAtPrice: 120,
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80",
-    ],
-    badge: "limited",
-    sizes: [
-      { size: "S", stock: 3 },
-      { size: "M", stock: 5 },
-      { size: "L", stock: 2 },
-      { size: "XL", stock: 0 },
-      { size: "2XL", stock: 0 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Grey", hex: "#4A4A4A" },
-    ],
-    category: "tee",
-    description: "Heavyweight fleece with embroidered details. Features a drawstring hood, kangaroo pocket, and premium Boujee Hoops embroidery.",
-  },
-  {
-    id: "4",
-    name: "Street Legend Cap",
-    slug: "street-legend-cap",
-    price: 35,
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=600&q=80",
-    badge: "new",
-    category: "accessory",
-    description: "Classic snapback with premium embroidery. Adjustable fit with 6-panel construction.",
-  },
-  {
-    id: "5",
-    name: "Game Day Shorts",
-    slug: "game-day-shorts",
-    price: 48,
-    image: "https://images.unsplash.com/photo-1591195853828-11db59a44f6b?w=600&q=80",
-    sizes: [
-      { size: "S", stock: 10 },
-      { size: "M", stock: 15 },
-      { size: "L", stock: 8 },
-      { size: "XL", stock: 5 },
-    ],
-    category: "shorts",
-    description: "Breathable mesh with side stripes. Lightweight fabric perfect for game day.",
-  },
-  {
-    id: "6",
-    name: "Classic Crew Socks",
-    slug: "classic-crew-socks",
-    price: 18,
-    image: "https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=600&q=80",
-    badge: "sold-out",
-    category: "accessory",
-    description: "Cotton blend with arch support. Comfortable cushioning for all-day wear.",
-  },
-  {
-    id: "7",
-    name: "Venice Beach Tank",
-    slug: "venice-beach-tank",
-    price: 40,
-    image: "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=600&q=80",
-    category: "tank",
-    description: "Lightweight fabric with beach vibes. Perfect for sunny days.",
-  },
-  {
-    id: "8",
-    name: "Oversized Hoodie",
-    slug: "oversized-hoodie",
-    price: 95,
-    compareAtPrice: 130,
-    image: "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80",
-    badge: "new",
-    category: "tee",
-    description: "Ultra-soft fleece with dropped shoulders. The ultimate comfort piece.",
-  },
-];
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -167,7 +34,10 @@ export default function ProductDetailPage({ params }: Props) {
   const dispatch = useAppDispatch();
   const wishlistItems = useAppSelector((state) => state.wishlist.items);
   
-  const product = allProducts.find((p) => p.slug === slug) || null;
+  const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
@@ -178,14 +48,58 @@ export default function ProductDetailPage({ params }: Props) {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    setSelectedImageIndex(0);
-    setSelectedSize(null);
-    setQuantity(1);
-    setIsAdded(false);
-    window.scrollTo(0, 0);
+    const fetchProduct = async () => {
+      setLoading(true);
+      setError(false);
+      
+      try {
+        const res = await fetch(`/api/products?action=bySlug&slug=${slug}`);
+        const data = await res.json();
+        
+        if (data.success) {
+          setProduct(data.product);
+          
+          const relatedRes = await fetch(`/api/products?category=${data.product.category}&limit=4`);
+          const relatedData = await relatedRes.json();
+          if (relatedData.success) {
+            setRelatedProducts(relatedData.products.filter((p: Product) => p._id !== data.product._id));
+          }
+        } else {
+          setError(true);
+        }
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+      
+      setSelectedImageIndex(0);
+      setSelectedSize(null);
+      setQuantity(1);
+      setIsAdded(false);
+      window.scrollTo(0, 0);
+    };
+
+    if (slug) {
+      fetchProduct();
+    }
   }, [slug]);
 
-  if (!product) {
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-background pt-32 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-center min-h-[50vh]">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+            <p className="font-body text-accent-2">Loading...</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (error || !product) {
     return (
       <main className="min-h-screen bg-background pt-32 px-4">
         <div className="max-w-7xl mx-auto text-center">
@@ -198,7 +112,7 @@ export default function ProductDetailPage({ params }: Props) {
     );
   }
 
-  const isWishlisted = wishlistItems.some((item) => item.id === product.id);
+  const isWishlisted = wishlistItems.some((item) => item.id === product._id);
   const hasMultipleImages = product.images && product.images.length > 1;
   const hasSizes = product.sizes && product.sizes.length > 0;
   const hasColors = product.colors && product.colors.length > 0;
@@ -209,16 +123,12 @@ export default function ProductDetailPage({ params }: Props) {
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
-  const relatedProducts = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   const handleAddToCart = () => {
     if (hasSizes && !isSizeAvailable) return;
 
     const size = product.sizes?.[selectedSize ?? 0]?.size || "One Size";
     dispatch(addToCart({
-      id: product.id,
+      id: product._id,
       name: product.name,
       slug: product.slug,
       price: product.price,
@@ -235,10 +145,10 @@ export default function ProductDetailPage({ params }: Props) {
 
   const handleWishlist = () => {
     if (isWishlisted) {
-      dispatch(removeFromWishlist({ id: product.id }));
+      dispatch(removeFromWishlist({ id: product._id }));
     } else {
       dispatch(addToWishlist({
-        id: product.id,
+        id: product._id,
         name: product.name,
         slug: product.slug,
         price: product.price,
@@ -404,16 +314,16 @@ export default function ProductDetailPage({ params }: Props) {
                 {product.description}
               </p>
 
-                {hasColors && product.colors && (
+              {hasColors && (
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-body text-sm text-primary">Color</span>
                     <span className="font-body text-sm text-accent-2">
-                      {product.colors[selectedColor]?.name}
+                      {product.colors?.[selectedColor]?.name}
                     </span>
                   </div>
                   <div className="flex gap-3">
-                    {product.colors.map((color, index) => (
+                    {product.colors!.map((color, index) => (
                       <button
                         key={color.name}
                         onClick={() => setSelectedColor(index)}
@@ -422,7 +332,7 @@ export default function ProductDetailPage({ params }: Props) {
                             ? "ring-2 ring-accent ring-offset-2 ring-offset-background"
                             : "hover:scale-110"
                         }`}
-                        style={{ backgroundColor: color.hex }}
+                        style={{ backgroundColor: color.hex || '#000' }}
                         title={color.name}
                       />
                     ))}
@@ -566,7 +476,7 @@ export default function ProductDetailPage({ params }: Props) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((item, index) => (
                 <motion.div
-                  key={item.id}
+                  key={item._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}

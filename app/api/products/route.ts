@@ -5,8 +5,32 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const queryString = searchParams.toString();
-    const response = await fetch(`${API_URL}/products${queryString ? '?' + queryString : ''}`, {
+    const action = searchParams.get('action');
+    const slug = searchParams.get('slug');
+    const category = searchParams.get('category');
+
+    let endpoint = "/products";
+    
+    if (action === 'bySlug' && slug) {
+      endpoint = `/products/slug/${slug}`;
+    } else if (category) {
+      const params = new URLSearchParams();
+      if (category) params.set('category', category);
+      if (searchParams.get('limit')) params.set('limit', searchParams.get('limit')!);
+      endpoint = `/products?${params.toString()}`;
+    } else {
+      const queryParams = new URLSearchParams();
+      searchParams.forEach((value, key) => {
+        if (key !== 'action') {
+          queryParams.set(key, value);
+        }
+      });
+      if (queryParams.toString()) {
+        endpoint = `/products?${queryParams.toString()}`;
+      }
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
       headers: { "Content-Type": "application/json" },
     });
     const data = await response.json();
