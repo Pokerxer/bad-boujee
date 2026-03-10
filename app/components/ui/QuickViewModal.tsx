@@ -73,7 +73,7 @@ export default function QuickViewModal() {
 
   if (!quickViewProduct) return null;
 
-  const discount = quickViewProduct.compareAtPrice
+  const discount = quickViewProduct.compareAtPrice && quickViewProduct.compareAtPrice > 0
     ? Math.round(
         ((quickViewProduct.compareAtPrice - quickViewProduct.price) /
           quickViewProduct.compareAtPrice) *

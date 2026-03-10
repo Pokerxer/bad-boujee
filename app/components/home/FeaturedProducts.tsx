@@ -171,7 +171,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     dispatch(openQuickView(product));
   };
 
-  const discount = product.compareAtPrice 
+  const discount = product.compareAtPrice && product.compareAtPrice > 0
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 
