@@ -172,7 +172,7 @@ export default function CartDrawer() {
                           </div>
 
                           <span className="font-body text-sm font-bold text-primary">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            ₦{(item.price * item.quantity).toLocaleString()}
                           </span>
                         </div>
                       </div>

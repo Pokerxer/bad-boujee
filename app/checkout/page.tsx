@@ -494,7 +494,7 @@ export default function CheckoutPage() {
                           </p>
                         </div>
                         <span className="font-body text-sm font-medium text-primary">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₦{(item.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
                     ))}

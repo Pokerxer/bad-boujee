@@ -119,7 +119,7 @@ export default function ProductDetailPage({ params }: Props) {
   const selectedSizeData = selectedSize !== null ? product.sizes?.[selectedSize] : null;
   const isSizeAvailable = selectedSizeData ? selectedSizeData.stock > 0 : true;
   
-  const discount = product.compareAtPrice
+  const discount = product.compareAtPrice && product.compareAtPrice > 0
     ? Math.round(((product.compareAtPrice - product.price) / product.compareAtPrice) * 100)
     : 0;
 

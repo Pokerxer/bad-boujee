@@ -171,11 +171,11 @@ export default function QuickViewModal() {
 
                   <div className="flex items-center gap-3 mt-3">
                     <span className="font-body text-2xl font-bold text-primary">
-                      ${quickViewProduct.price}
+                      ₦{quickViewProduct.price?.toLocaleString() || quickViewProduct.price}
                     </span>
-                    {quickViewProduct.compareAtPrice && (
+                    {quickViewProduct.compareAtPrice && quickViewProduct.compareAtPrice > 0 && (
                       <span className="font-body text-lg text-accent-2 line-through">
-                        ${quickViewProduct.compareAtPrice}
+                        ₦{quickViewProduct.compareAtPrice.toLocaleString()}
                       </span>
                     )}
                     {discount > 0 && (

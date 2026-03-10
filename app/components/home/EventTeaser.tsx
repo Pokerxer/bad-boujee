@@ -186,7 +186,7 @@ function EventCard({ event, isUpcoming = true }: { event: EventData | typeof pas
 
             {isUpcoming && 'price' in event && (
               <div className="text-right">
-                <span className="font-display text-3xl md:text-4xl text-accent">${event.price}</span>
+                <span className="font-display text-3xl md:text-4xl text-accent">₦{event.price?.toLocaleString()}</span>
                 <p className="font-body text-[10px] text-accent-2 uppercase">Per Team</p>
               </div>
             )}
@@ -373,7 +373,7 @@ export default function EventTeaser() {
                     </motion.div>
                     
                     <p className="font-body text-xs text-accent-2 mt-4">
-                      ${upcomingEvent.price} per team • {upcomingEvent.spots} spots left
+                      ₦{upcomingEvent.price?.toLocaleString()} per team • {upcomingEvent.spots} spots left
                     </p>
                   </div>
                 </div>

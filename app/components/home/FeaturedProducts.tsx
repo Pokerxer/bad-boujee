@@ -411,11 +411,11 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
 
           <div className="flex items-center gap-2 mt-2">
             <span className="font-body text-base font-bold text-primary">
-              ${product.price}
+              ₦{product.price?.toLocaleString() || product.price}
             </span>
-            {product.compareAtPrice && (
+            {product.compareAtPrice && product.compareAtPrice > 0 && (
               <span className="font-body text-sm text-accent-2 line-through">
-                ${product.compareAtPrice}
+                ₦{product.compareAtPrice.toLocaleString()}
               </span>
             )}
           </div>
