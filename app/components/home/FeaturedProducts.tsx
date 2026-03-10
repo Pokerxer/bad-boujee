@@ -23,80 +23,226 @@ interface Product {
   description?: string;
 }
 
-const featuredProducts: Product[] = [
-  {
-    id: "1",
-    name: "Infinity Classic Tank",
-    slug: "infinity-classic-tank",
-    price: 45,
-    compareAtPrice: 55,
-    image: "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=600&q=80",
-      "https://images.unsplash.com/photo-1503341455253-b2e72333dbdb?w=600&q=80",
-    ],
-    badge: "new",
-    sizes: [
-      { size: "S", stock: 12 },
-      { size: "M", stock: 8 },
-      { size: "L", stock: 5 },
-      { size: "XL", stock: 0 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Gold", hex: "#C9A84C" },
-      { name: "White", hex: "#FFFFFF" },
-    ],
-    description: "Premium cotton blend with infinity branding",
-  },
-  {
-    id: "2",
-    name: "Courtside Tee",
-    slug: "courtside-tee",
-    price: 55,
-    image: "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=600&q=80",
-      "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=600&q=80",
-    ],
-    sizes: [
-      { size: "S", stock: 15 },
-      { size: "M", stock: 20 },
-      { size: "L", stock: 10 },
-      { size: "XL", stock: 7 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "White", hex: "#FFFFFF" },
-    ],
-    description: "Oversized fit with retro court graphics",
-  },
-  {
-    id: "3",
-    name: "Boujee Hoops Hoodie",
-    slug: "boujee-hoops-hoodie",
-    price: 85,
-    compareAtPrice: 120,
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
-    images: [
-      "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600&q=80",
-      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80",
-    ],
-    badge: "limited",
-    sizes: [
-      { size: "S", stock: 3 },
-      { size: "M", stock: 5 },
-      { size: "L", stock: 2 },
-      { size: "XL", stock: 0 },
-      { size: "2XL", stock: 0 },
-    ],
-    colors: [
-      { name: "Black", hex: "#000000" },
-      { name: "Grey", hex: "#4A4A4A" },
-    ],
-    description: "Heavyweight fleece with embroidered details",
-  },
-];
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { motion, useInView } from "framer-motion";
+import { useAppDispatch } from "../../hooks/useStore";
+import { openQuickView } from "../../store/slices/uiSlice";
+
+interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  price: number;
+  compareAtPrice?: number;
+  image: string;
+  images?: string[];
+  badge?: "new" | "limited" | "sold-out";
+  sizes?: { size: string; stock: number }[];
+  colors?: { name: string; hex: string }[];
+  description?: string;
+}
+
+function StockIndicator({ stock }: { stock: number }) {
+  if (stock === 0) return <span className="text-xs text-danger">Sold Out</span>;
+  if (stock <= 3) return <span className="text-xs text-danger">Only {stock} left!</span>;
+  return <span className="text-xs text-accent">In Stock</span>;
+}
+
+function ProductCard({ product, index }: { product: Product; index: number }) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  const dispatch = useAppDispatch();
+
+  const [showSecondImage, setShowSecondImage] = useState(false);
+  const [selectedColor, setSelectedColor] = useState(0);
+
+  const handleClick = () => {
+    dispatch(openQuickView(product));
+  };
+
+  const hasMultipleImages = product.images && product.images.length > 0;
+  const hasMultipleColors = product.colors && product.colors.length > 0;
+
+  const discount = product.compareAtPrice && Number(product.compareAtPrice) > 0
+    ? Math.round(((Number(product.compareAtPrice) - product.price) / Number(product.compareAtPrice)) * 100)
+    : 0;
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 60 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.7, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <Link href={`/shop/${product.slug}`} className="group block">
+        <div className="relative aspect-[3/4] bg-surface overflow-hidden rounded-2xl border border-accent-2/10 group-hover:border-accent/20 transition-all duration-300">
+          <div
+            className="relative w-full h-full cursor-zoom-in"
+            onClick={handleClick}
+            onMouseEnter={() => hasMultipleImages && setShowSecondImage(true)}
+            onMouseLeave={() => setShowSecondImage(false)}
+          >
+            <Image
+              src={hasMultipleImages && showSecondImage ? product.images[1] : product.image}
+              alt={product.name}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            />
+
+            {product.badge && (
+              <span className={`absolute top-3 left-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 font-bold ${
+                product.badge === "new" ? "bg-accent text-background" :
+                product.badge === "limited" ? "bg-primary text-background" :
+                "bg-danger text-primary"
+              }`}>
+                {product.badge}
+              </span>
+            )}
+
+            {discount > 0 && (
+              <span className="absolute top-3 right-3 font-body text-xs uppercase tracking-wider px-3 py-1.5 bg-danger text-primary font-bold w-fit">
+                -{discount}%
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="p-4 text-center">
+          <h3 className="font-body text-lg font-medium text-primary leading-tight group-hover:text-accent transition-colors">
+            {product.name}
+          </h3>
+
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <span className="font-body text-base font-bold text-primary">
+              ₦{product.price.toLocaleString()}
+            </span>
+            {product.compareAtPrice && Number(product.compareAtPrice) > 0 && (
+              <span className="font-body text-sm text-accent-2 line-through">
+                ₦{product.compareAtPrice.toLocaleString()}
+              </span>
+            )}
+          </div>
+
+          {hasMultipleColors && (
+            <div className="flex justify-center gap-1 mt-3">
+              {product.colors!.slice(0, 4).map((color, i) => (
+                <span
+                  key={color.name}
+                  className={`w-4 h-4 rounded-full border ${
+                    i === selectedColor ? "ring-1 ring-accent" : "ring-transparent"
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                  title={color.name}
+                />
+              ))}
+            </div>
+          )}
+
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mt-3">
+              <StockIndicator stock={product.sizes.reduce((total, size) => total + size.stock, 0)} />
+            </div>
+          )}
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+export default function FeaturedProducts() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-50px" });
+  
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const res = await fetch('/api/products?featured=true&limit=3');
+        const data = await res.json();
+        if (data.success) {
+          setFeaturedProducts(data.products.slice(0, 3));
+        }
+      } catch (error) {
+        console.error('Error fetching featured products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
+
+  if (loading && featuredProducts.length === 0) {
+    return (
+      <section ref={ref} className="py-24 px-4 bg-background">
+        <div className="max-w-7xl mx-auto">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            className="font-display text-5xl md:text-6xl lg:text-7xl text-primary text-center mb-12">
+            FEATURED
+          </motion.h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex flex-col items-center">
+                <div className="w-full aspect-[3/4] bg-surface/20 rounded-2xl animate-pulse" />
+                <div className="w-3/4 h-4 mt-4 bg-surface/20 rounded animate-pulse" />
+                <div className="w-1/4 h-4 mt-2 bg-surface/20 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (featuredProducts.length === 0) {
+    return null;
+  }
+
+  return (
+    <section ref={ref} className="py-24 px-4 bg-background">
+      <div className="max-w-7xl mx-auto">
+        <motion.h2
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="font-display text-5xl md:text-6xl lg:text-7xl text-primary text-center mb-12">
+          FEATURED
+        </motion.h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {featuredProducts.map((product, index) => (
+            <ProductCard key={product._id} product={product} index={index} />
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="text-center mt-12"
+        >
+          <Link
+            href="/shop"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-accent/10 text-accent hover:bg-accent/20 transition-colors font-body uppercase tracking-wider"
+          >
+            View All Products
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
 
 function StockIndicator({ stock }: { stock: number }) {
   if (stock === 0) return <span className="text-xs text-danger">Sold Out</span>;
